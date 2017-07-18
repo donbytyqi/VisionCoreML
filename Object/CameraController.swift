@@ -17,6 +17,8 @@ class CameraController: UIViewController, AVCaptureVideoDataOutputSampleBufferDe
     let speechSynthesizer = AVSpeechSynthesizer()
     var speechUtterance : AVSpeechUtterance?
     
+    var text = [String]()
+    
     let label: UILabel = {
         let l = UILabel()
         l.textColor = .white
@@ -110,19 +112,28 @@ class CameraController: UIViewController, AVCaptureVideoDataOutputSampleBufferDe
                 
                 let confidence = classifications.confidence * 100
                 let confidenceString = String(format: "%.0f%%", confidence)
-                self.label.text = classifications.identifier + " " + confidenceString
+                self.label.text = classifications.identifier //+ " " + confidenceString
                 
                 guard let textToSpeak = self.label.text else {
                     return
                 }
                 
+                
+                
                 self.speechUtterance = AVSpeechUtterance(string: textToSpeak)
                 
                 if let sU = self.speechUtterance {
                     
-                    if confidence > 50 {
+                    if confidence > 45 {
+                        
+                        if self.text.contains(textToSpeak) == true {
+                            return
+                        } else {
+                            self.text.removeAll()
+                        }
                         
                         self.speechSynthesizer.speak(sU)
+                        self.text.append(textToSpeak)
                         
                     }
                 }
