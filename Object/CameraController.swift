@@ -28,6 +28,14 @@ class CameraController: UIViewController, AVCaptureVideoDataOutputSampleBufferDe
         return l
     }()
     
+    let percentage: UILabel = {
+        let p = UILabel()
+        p.textColor = .white
+        p.translatesAutoresizingMaskIntoConstraints = false
+        p.textAlignment = .right
+        return p
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -37,12 +45,20 @@ class CameraController: UIViewController, AVCaptureVideoDataOutputSampleBufferDe
     }
     
     func setupLabel() {
+        
         view.addSubview(label)
+        view.addSubview(percentage)
         
         label.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         label.heightAnchor.constraint(equalToConstant: 100).isActive = true
         label.topAnchor.constraint(equalTo: view.topAnchor, constant: 10).isActive = true
         label.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
+        percentage.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        percentage.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        percentage.topAnchor.constraint(equalTo: view.topAnchor, constant: 5).isActive = true
+        percentage.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
     }
     
     func configAndStartCamera() {
@@ -84,7 +100,7 @@ class CameraController: UIViewController, AVCaptureVideoDataOutputSampleBufferDe
             return
         }
         
-        let model = MLModel() //Inceptionv3().model // your model here
+        let model = //Resnet50().model // your model here
         
         guard let coremlModel = try? VNCoreMLModel(for: model) else {
             return
@@ -113,6 +129,7 @@ class CameraController: UIViewController, AVCaptureVideoDataOutputSampleBufferDe
                 let confidence = classifications.confidence * 100
                 let confidenceString = String(format: "%.0f%%", confidence)
                 self.label.text = classifications.identifier //+ " " + confidenceString
+                self.percentage.text = confidenceString
                 
                 guard let textToSpeak = self.label.text else {
                     return
@@ -126,6 +143,8 @@ class CameraController: UIViewController, AVCaptureVideoDataOutputSampleBufferDe
                     
                     if confidence > 45 {
                         
+                        
+                        // this makes sure that the classification identifier doesn't get spoken twice, unless the textToSpeak changes.
                         if self.text.contains(textToSpeak) == true {
                             return
                         } else {
